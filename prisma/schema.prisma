@@ -21,9 +21,88 @@ enum Role {
 
 model User {
   id       Int      @id @default(autoincrement())
+  name     String
   email     String   @unique
   password  String
   role   Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  progresses Progress[]
+  quizResults QuizResult[]
 }
+
+model Course {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+
+  lessons     Lesson[]
+}
+
+model Lesson {
+  id        Int      @id @default(autoincrement())
+  courseId  Int
+  title     String
+  content   String   // html / video url
+  order     Int
+
+  course    Course   @relation(fields: [courseId], references: [id])
+  quizzes   Quiz[]
+  progresses Progress[]
+}
+
+model Quiz {
+  id        Int      @id @default(autoincrement())
+  lessonId  Int
+  title     String
+
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  questions Question[]
+  results   QuizResult[]
+}
+
+model Question {
+  id           Int      @id @default(autoincrement())
+  quizId       Int
+  questionText String
+
+  quiz         Quiz     @relation(fields: [quizId], references: [id])
+  choices      Choice[]
+}
+
+model Choice {
+  id          Int     @id @default(autoincrement())
+  questionId  Int
+  text        String
+  isCorrect   Boolean @default(false)
+
+  question    Question @relation(fields: [questionId], references: [id])
+}
+
+model Progress {
+  id         Int     @id @default(autoincrement())
+  studentId  Int
+  lessonId   Int
+  isCompleted Boolean @default(false)
+
+  student    User   @relation(fields: [studentId], references: [id])
+  lesson     Lesson @relation(fields: [lessonId], references: [id])
+
+  @@unique([studentId, lessonId])
+}
+
+model QuizResult {
+  id          Int      @id @default(autoincrement())
+  studentId   Int
+  quizId      Int
+  score       Int
+  submittedAt DateTime @default(now())
+
+  student     User     @relation(fields: [studentId], references: [id])
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
+
+  @@unique([studentId, quizId])
+}
+
+
