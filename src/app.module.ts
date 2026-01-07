@@ -12,9 +12,10 @@ import { ChoicesModule } from './choices/choices.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { LessonprogressModule } from './lessonprogress/lessonprogress.module';
 import { QuizresultsModule } from './quizresults/quizresults.module';
+import { QuizanswersModule } from './quizanswers/quizanswers.module';
 
 @Module({
-  imports: [PrismaModule, CoursesModule, AuthModule, UsersModule, LessonsModule, QuizModule, QuestionsModule, ChoicesModule, EnrollmentsModule, LessonprogressModule, QuizresultsModule],
+  imports: [PrismaModule, CoursesModule, AuthModule, UsersModule, LessonsModule, QuizModule, QuestionsModule, ChoicesModule, EnrollmentsModule, LessonprogressModule, QuizresultsModule, QuizanswersModule],
   controllers: [AppController],
   providers: [AppService],
 })
