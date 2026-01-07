@@ -15,5 +15,5 @@ export class CreateChoiceDto {
   @ApiProperty({ example: true })
   @IsNotEmpty()
   @IsBoolean()
-  is_correct: boolean;
+  isCorrect: boolean;
 }
