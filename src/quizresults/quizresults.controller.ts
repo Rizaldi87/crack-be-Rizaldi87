@@ -28,7 +28,7 @@ import {
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
-@Controller('quizresults')
+@Controller('results')
 export class QuizresultsController {
   constructor(private readonly quizresultsService: QuizresultsService) {}
 
