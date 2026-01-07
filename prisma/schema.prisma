@@ -20,83 +20,83 @@ enum Role {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  name     String
+  id        Int      @id @default(autoincrement())
+  name      String
   email     String   @unique
   password  String
-  role   Role     @default(USER)
+  role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  progresses Progress[]
+  progresses  Progress[]
   quizResults QuizResult[]
 }
 
-enum COURSESTATUS{
+enum COURSESTATUS {
   DRAFT
   PUBLISHED
 }
 
 model Course {
-  id          Int      @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   title       String
   description String?
-  image    String?
-  status   COURSESTATUS? @default(DRAFT)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  image       String?
+  status      COURSESTATUS? @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
-  lessons     Lesson[]
+  lessons Lesson[]
 }
 
 model Lesson {
-  id        Int      @id @default(autoincrement())
-  courseId  Int
-  title     String
-  content   String   // html / video url
-  order     Int
+  id       Int    @id @default(autoincrement())
+  courseId Int
+  title    String
+  content  String // html / video url
+  order    Int
 
-  course    Course   @relation(fields: [courseId], references: [id])
-  quizzes   Quiz[]
+  course     Course     @relation(fields: [courseId], references: [id])
+  quizzes    Quiz[]
   progresses Progress[]
 }
 
 model Quiz {
-  id        Int      @id @default(autoincrement())
-  lessonId  Int
-  title     String
+  id       Int    @id @default(autoincrement())
+  lessonId Int
+  title    String
 
-  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  lesson    Lesson       @relation(fields: [lessonId], references: [id])
   questions Question[]
   results   QuizResult[]
 }
 
 model Question {
-  id           Int      @id @default(autoincrement())
+  id           Int    @id @default(autoincrement())
   quizId       Int
   questionText String
 
-  quiz         Quiz     @relation(fields: [quizId], references: [id])
-  choices      Choice[]
+  quiz    Quiz     @relation(fields: [quizId], references: [id])
+  choices Choice[]
 }
 
 model Choice {
-  id          Int     @id @default(autoincrement())
-  questionId  Int
-  text        String
-  isCorrect   Boolean @default(false)
+  id         Int     @id @default(autoincrement())
+  questionId Int
+  text       String
+  isCorrect  Boolean @default(false)
 
-  question    Question @relation(fields: [questionId], references: [id])
+  question Question @relation(fields: [questionId], references: [id])
 }
 
 model Progress {
-  id         Int     @id @default(autoincrement())
-  studentId  Int
-  lessonId   Int
+  id          Int     @id @default(autoincrement())
+  studentId   Int
+  lessonId    Int
   isCompleted Boolean @default(false)
 
-  student    User   @relation(fields: [studentId], references: [id])
-  lesson     Lesson @relation(fields: [lessonId], references: [id])
+  student User   @relation(fields: [studentId], references: [id])
+  lesson  Lesson @relation(fields: [lessonId], references: [id])
 
   @@unique([studentId, lessonId])
 }
@@ -108,10 +108,8 @@ model QuizResult {
   score       Int
   submittedAt DateTime @default(now())
 
-  student     User     @relation(fields: [studentId], references: [id])
-  quiz        Quiz     @relation(fields: [quizId], references: [id])
+  student User @relation(fields: [studentId], references: [id])
+  quiz    Quiz @relation(fields: [quizId], references: [id])
 
   @@unique([studentId, quizId])
 }
-
-
