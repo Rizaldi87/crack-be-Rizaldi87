@@ -15,6 +15,7 @@ async function bootstrap() {
     .setTitle('CRACK BE Docs')
     .setDescription('CRACK PROJECT BE API')
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('CRACK')
     .build();
 
