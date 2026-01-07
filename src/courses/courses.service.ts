@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CoursesRepository } from './courses.repository';
+import { EnrollmentsService } from 'src/enrollments/enrollments.service';
 
 @Injectable()
 export class CoursesService {
-  constructor(private readonly repo: CoursesRepository) {}
+  constructor(
+    private readonly repo: CoursesRepository,
+    private readonly enrollmentsService: EnrollmentsService,
+  ) {}
   create(createCourseDto: CreateCourseDto) {
     return this.repo.create(createCourseDto);
   }
@@ -28,5 +32,13 @@ export class CoursesService {
 
   remove(id: number) {
     return this.repo.remove(id);
+  }
+
+  enroll(userId: number, courseId: number) {
+    return this.enrollmentsService.enroll(userId, courseId);
+  }
+
+  unEnroll(userId: number, courseId: number) {
+    return this.enrollmentsService.unEnroll(userId, courseId);
   }
 }
