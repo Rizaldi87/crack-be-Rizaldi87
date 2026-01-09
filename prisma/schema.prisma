@@ -17,6 +17,7 @@ datasource db {
 enum Role {
   USER
   ADMIN
+  STUDENT
 }
 
 model User {
@@ -161,3 +162,12 @@ model QuizAnswer {
 
   @@unique([studentId, quizId, questionId])
 }
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  revoked   Boolean  @default(false)
+  expiresAt DateTime
+}
+
