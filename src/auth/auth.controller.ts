@@ -57,4 +57,12 @@ export class AuthController {
   logout(@Body('refresh_token') refreshToken: string) {
     return this.authService.revokeRefreshToken(refreshToken);
   }
+
+  @Post('refresh')
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiOkResponse({ description: 'Access token refreshed' })
+  @ApiUnauthorizedResponse({ description: 'Invalid refresh token' })
+  refresh(@Body('refresh_token') refreshToken: string) {
+    return this.authService.refresh(refreshToken);
+  }
 }

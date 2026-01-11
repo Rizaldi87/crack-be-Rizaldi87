@@ -44,6 +44,7 @@ export class QuizController {
     return this.quizService.create(createQuizDto);
   }
 
+  @Roles('ADMIN')
   @Get()
   @ApiOperation({ summary: 'Get all quizzes' })
   @ApiOkResponse({ description: 'List of quizzes' })

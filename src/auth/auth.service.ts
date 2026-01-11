@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersRepository } from 'src/users/users.repository';
@@ -39,9 +43,11 @@ export class AuthService {
     const access_token = this.jwtService.sign(payload, { expiresIn: '1h' });
     const refresh_token = this.jwtService.sign(payload, { expiresIn: '7d' });
 
+    const hashedRefreshToken = await bcrypt.hash(refresh_token, 10);
+
     await this.prisma.refreshToken.create({
       data: {
-        token: refresh_token,
+        token: hashedRefreshToken,
         userId: user.id,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
@@ -58,5 +64,34 @@ export class AuthService {
       where: { token },
       data: { revoked: true },
     });
+  }
+
+  async refresh(refreshToken: string) {
+    const tokenRecord = await this.prisma.refreshToken.findFirst({
+      where: { revoked: false },
+    });
+
+    if (!tokenRecord) throw new UnauthorizedException('Invalid refresh token');
+
+    const isValid = await bcrypt.compare(refreshToken, tokenRecord.token);
+
+    if (!isValid) throw new UnauthorizedException('Invalid refresh token');
+
+    const user = await this.usersRepo.findById(tokenRecord.userId);
+    if (!user) throw new NotFoundException('User not found');
+    const payload = {
+      sub: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+    const newAccessToken = this.jwtService.sign(
+      {
+        payload,
+      },
+      { expiresIn: '1h' },
+    );
+
+    return newAccessToken;
   }
 }
