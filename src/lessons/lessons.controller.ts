@@ -91,4 +91,16 @@ export class LessonsController {
   findByCourse(@Param('courseId', ParseIntPipe) courseId: number) {
     return this.lessonsService.findAllbyCourseId(courseId);
   }
+
+  @Patch('reorder/:courseId')
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Reorder lessons within a course (ADMIN only)' })
+  @ApiOkResponse({ description: 'Lessons successfully reordered' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  reorderLessons(
+    @Param('courseId', ParseIntPipe) courseId: number,
+    @Body() body: { orders: { id: number; order: number }[] },
+  ) {
+    return this.lessonsService.reorderLessons(courseId, body.orders);
+  }
 }

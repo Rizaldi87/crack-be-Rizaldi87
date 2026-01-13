@@ -30,10 +30,37 @@ export class LessonsRepository {
   async findAllbyCourseId(courseId: number) {
     return await this.prisma.lesson.findMany({
       where: { courseId: Number(courseId) },
+      orderBy: { order: 'asc' },
     });
   }
 
   async countAllLessons() {
     return await this.prisma.lesson.count();
+  }
+
+  // lesson.service.ts
+  async reorderLessons(
+    courseId: number,
+    orders: { id: number; order: number }[],
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      // STEP 1: shift sementara
+      await tx.lesson.updateMany({
+        where: { courseId },
+        data: {
+          order: {
+            increment: 1000,
+          },
+        },
+      });
+
+      // STEP 2: set order final
+      for (const item of orders) {
+        await tx.lesson.update({
+          where: { id: item.id },
+          data: { order: item.order },
+        });
+      }
+    });
   }
 }
