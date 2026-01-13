@@ -9,6 +9,8 @@ import {
   UseGuards,
   ParseIntPipe,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -24,6 +26,7 @@ import {
   ApiParam,
   ApiBody,
 } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Courses')
 @Controller('courses')
@@ -45,12 +48,19 @@ export class CoursesController {
   @Roles('ADMIN')
   @ApiBearerAuth()
   @Post()
+  @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Create a new course (ADMIN only)' })
   @ApiBody({ type: CreateCourseDto })
   @ApiResponse({ status: 201, description: 'Course created successfully' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
-  create(@Body() createCourseDto: CreateCourseDto) {
-    return this.coursesService.create(createCourseDto);
+  create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createCourseDto: CreateCourseDto,
+  ) {
+    return this.coursesService.create({
+      ...createCourseDto,
+      image: file?.filename,
+    });
   }
 
   @Get()
@@ -132,5 +142,26 @@ export class CoursesController {
   @ApiResponse({ status: 404, description: 'Enrollment not found' })
   unEnroll(@Param('courseId', ParseIntPipe) courseId: number, @Req() req) {
     return this.coursesService.unEnroll(req.user.id, courseId);
+  }
+
+  @Post(':id/upload-image')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadCourseImage(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    console.log(file);
+    return this.coursesService.updateImage(id, file.filename);
+  }
+
+  @Get(':id/with-lessons')
+  @ApiOperation({ summary: 'Get published course with lessons by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 200, description: 'Course detail' })
+  @ApiResponse({ status: 404, description: 'Course not found' })
+  findOnePublishedWithLessons(@Param('id', ParseIntPipe) id: number) {
+    return this.coursesService.findOnePublishedWithLessons(id);
   }
 }

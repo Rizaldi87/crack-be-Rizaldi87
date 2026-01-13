@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CoursesRepository } from './courses.repository';
 import { EnrollmentsService } from 'src/enrollments/enrollments.service';
+import { unlink } from 'fs';
 
 @Injectable()
 export class CoursesService {
@@ -10,7 +11,7 @@ export class CoursesService {
     private readonly repo: CoursesRepository,
     private readonly enrollmentsService: EnrollmentsService,
   ) {}
-  create(createCourseDto: CreateCourseDto) {
+  create(createCourseDto: CreateCourseDto & { image?: string }) {
     return this.repo.create(createCourseDto);
   }
 
@@ -44,5 +45,26 @@ export class CoursesService {
 
   countAllCourses() {
     return this.repo.countAllCourses();
+  }
+
+  async updateImage(courseId: number, filename: string) {
+    const course = await this.repo.findOne(courseId);
+
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    // optional: hapus image lama
+    if (course.image) {
+      unlink(`uploads/images/${course.image}`, () => {});
+    }
+
+    return this.repo.update(courseId, {
+      image: filename,
+    });
+  }
+
+  async findOnePublishedWithLessons(id: number) {
+    return this.repo.findOnePublishedWithLessons(id);
   }
 }

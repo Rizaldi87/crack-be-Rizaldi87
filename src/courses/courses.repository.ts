@@ -18,6 +18,15 @@ export class CoursesRepository {
     return await this.prisma.course.findUnique({ where: { id } });
   }
 
+  async findOnePublishedWithLessons(id: number) {
+    return await this.prisma.course.findUnique({
+      where: { id, status: 'PUBLISHED' },
+      include: {
+        lessons: true,
+      },
+    });
+  }
+
   async update(id: number, data) {
     return await this.prisma.course.update({ where: { id }, data });
   }
