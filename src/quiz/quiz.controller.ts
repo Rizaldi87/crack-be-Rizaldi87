@@ -113,4 +113,11 @@ export class QuizController {
   ) {
     return this.quizService.updateQuizWithQuestion(id, dto);
   }
+
+  @Get('/course/:courseId')
+  @ApiOperation({ summary: 'Get all quizzes by course ID' })
+  @ApiOkResponse({ description: 'List of quizzes' })
+  findAllByCourseId(@Param('courseId', ParseIntPipe) courseId: number) {
+    return this.quizService.findAllByCourseId(courseId);
+  }
 }

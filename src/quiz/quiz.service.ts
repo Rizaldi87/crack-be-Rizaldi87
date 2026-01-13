@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { QuizRepository } from './quiz.repository';
@@ -37,5 +37,9 @@ export class QuizService {
 
   updateQuizWithQuestion(quizId: number, dto: any) {
     return this.repo.updateQuizWithQuestion(quizId, dto);
+  }
+
+  findAllByCourseId(courseId: number) {
+    return this.repo.findQuizzesByCourseId(courseId);
   }
 }

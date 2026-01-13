@@ -142,4 +142,34 @@ export class QuizRepository {
       });
     });
   }
+
+  async findQuizzesByCourseId(courseId: number) {
+    return this.prisma.quiz.findMany({
+      where: {
+        lesson: {
+          courseId,
+        },
+      },
+      orderBy: {
+        id: 'asc',
+      },
+      include: {
+        lesson: {
+          select: {
+            title: true,
+            course: {
+              select: {
+                title: true,
+              },
+            },
+          },
+        },
+        questions: {
+          include: {
+            choices: true,
+          },
+        },
+      },
+    });
+  }
 }
