@@ -81,7 +81,7 @@ export class CoursesController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   @ApiBearerAuth()
   @Get(':id')
   @ApiOperation({ summary: 'Get course detail by ID (ADMIN only)' })

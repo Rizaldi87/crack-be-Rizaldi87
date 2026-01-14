@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { EnrollmentsService } from './enrollments.service';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
@@ -22,21 +23,20 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
-  ApiExcludeController,
 } from '@nestjs/swagger';
 
-@ApiExcludeController()
+// @ApiExcludeController()
 @ApiTags('Enrollments')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN')
 @Controller('enrollments')
 export class EnrollmentsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
 
+  @Roles('ADMIN')
   @Post()
   @ApiOperation({
-    summary: 'Create enrollment manually (ADMIN only)',
+    summary: 'Create enrollment manually ',
     description: 'Create enrollment by specifying userId and courseId manually',
   })
   @ApiBody({ type: CreateEnrollmentDto })
@@ -46,18 +46,20 @@ export class EnrollmentsController {
     return this.enrollmentsService.create(createEnrollmentDto);
   }
 
+  @Roles('ADMIN')
   @Get()
   @ApiOperation({
-    summary: 'Get all enrollments (ADMIN only)',
+    summary: 'Get all enrollments (admin only) ',
   })
   @ApiResponse({ status: 200, description: 'List of enrollments' })
   findAll() {
     return this.enrollmentsService.findAll();
   }
 
+  @Roles('ADMIN')
   @Get(':id')
   @ApiOperation({
-    summary: 'Get enrollment detail by ID (ADMIN only)',
+    summary: 'Get enrollment detail by ID ',
   })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Enrollment detail' })
@@ -66,9 +68,10 @@ export class EnrollmentsController {
     return this.enrollmentsService.findOne(id);
   }
 
+  @Roles('ADMIN')
   @Patch(':id')
   @ApiOperation({
-    summary: 'Update enrollment by ID (ADMIN only)',
+    summary: 'Update enrollment by ID ',
   })
   @ApiParam({ name: 'id', type: Number })
   @ApiBody({ type: UpdateEnrollmentDto })
@@ -80,14 +83,45 @@ export class EnrollmentsController {
     return this.enrollmentsService.update(id, updateEnrollmentDto);
   }
 
+  @Roles('ADMIN')
   @Delete(':id')
   @ApiOperation({
-    summary: 'Delete enrollment by ID (ADMIN only)',
+    summary: 'Delete enrollment by ID ',
   })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Enrollment deleted successfully' })
   @ApiResponse({ status: 404, description: 'Enrollment not found' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.enrollmentsService.remove(id);
+  }
+
+  @Roles('STUDENT')
+  @Get('course/:courseId')
+  @ApiOperation({
+    summary: 'Get enrollment by userId and courseId ',
+  })
+  // @ApiParam({ name: 'userId', type: Number })
+  @ApiParam({ name: 'courseId', type: Number })
+  @ApiResponse({ status: 200, description: 'Enrollment detail' })
+  @ApiResponse({ status: 404, description: 'Enrollment not found' })
+  findByUserIdAndCourseId(
+    @Req() req,
+    @Param('courseId', ParseIntPipe) courseId: number,
+  ) {
+    return this.enrollmentsService.findByUserIdAndCourseId(
+      req.user.userId,
+      courseId,
+    );
+  }
+
+  @Roles('STUDENT')
+  @Get('user/:userId')
+  @ApiOperation({
+    summary: 'Get all enrollments by userId ',
+  })
+  @ApiParam({ name: 'userId', type: Number })
+  @ApiResponse({ status: 200, description: 'List of enrollments' })
+  findByUserId(@Param('userId', ParseIntPipe) userId: number) {
+    return this.enrollmentsService.findByUserId(userId);
   }
 }

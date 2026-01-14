@@ -37,6 +37,29 @@ export class EnrollmentsService {
     return this.repo.remove(id);
   }
 
+  async findByUserIdAndCourseId(userId: number, courseId: number) {
+    const enrollment = await this.repo.findByUserIdAndCourseId(
+      userId,
+      courseId,
+    );
+
+    return {
+      ...enrollment,
+      course: {
+        ...enrollment?.course,
+        lessons: enrollment?.course.lessons.map((lesson) => ({
+          ...lesson,
+          isCompleted: lesson.progresses[0]?.isCompleted ?? false,
+          progresses: undefined,
+        })),
+      },
+    };
+  }
+
+  findByUserId(userId: number) {
+    return this.repo.findByUserId(userId);
+  }
+
   async enroll(userId: number, courseId: number) {
     const user = await this.usersRepo.findById(userId);
 

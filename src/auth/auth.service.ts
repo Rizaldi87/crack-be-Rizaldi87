@@ -43,6 +43,8 @@ export class AuthService {
     const access_token = this.jwtService.sign(payload, { expiresIn: '1h' });
     const refresh_token = this.jwtService.sign(payload, { expiresIn: '7d' });
 
+    //hash access_token kirim ke fe lalu compare
+
     const hashedRefreshToken = await bcrypt.hash(refresh_token, 10);
 
     await this.prisma.refreshToken.create({
@@ -59,11 +61,27 @@ export class AuthService {
     };
   }
 
-  async revokeRefreshToken(token: string) {
-    await this.prisma.refreshToken.update({
-      where: { token },
-      data: { revoked: true },
+  async revokeRefreshToken(refreshToken: string) {
+    const tokens = await this.prisma.refreshToken.findMany({
+      where: {
+        revoked: false,
+      },
     });
+
+    for (const stored of tokens) {
+      const isMatch = await bcrypt.compare(refreshToken, stored.token);
+
+      if (isMatch) {
+        await this.prisma.refreshToken.update({
+          where: { id: stored.id },
+          data: { revoked: true },
+        });
+
+        return { message: 'Logout successful' };
+      }
+    }
+
+    throw new UnauthorizedException('Invalid refresh token');
   }
 
   async refresh(refreshToken: string) {
@@ -85,13 +103,10 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
-    const newAccessToken = this.jwtService.sign(
-      {
-        payload,
-      },
-      { expiresIn: '1h' },
-    );
+    const newAccessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
 
-    return newAccessToken;
+    return {
+      access_token: newAccessToken,
+    };
   }
 }

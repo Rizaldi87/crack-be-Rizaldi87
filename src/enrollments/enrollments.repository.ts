@@ -27,7 +27,62 @@ export class EnrollmentsRepository {
 
   findByUserIdAndCourseId(userId: number, courseId: number) {
     return this.prisma.enrollment.findUnique({
-      where: { userId_courseId: { userId, courseId } },
+      where: {
+        userId_courseId: {
+          userId,
+          courseId,
+        },
+      },
+      include: {
+        course: {
+          include: {
+            lessons: {
+              orderBy: { order: 'asc' },
+              include: {
+                progresses: {
+                  where: {
+                    userId,
+                  },
+                  select: {
+                    isCompleted: true,
+                    completedAt: true,
+                  },
+                },
+                quizzes: {
+                  include: {
+                    questions: {
+                      include: {
+                        choices: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  findByUserId(userId: number) {
+    return this.prisma.enrollment.findMany({
+      where: { userId },
+      include: {
+        course: {
+          select: {
+            id: true,
+            title: true,
+            image: true,
+            description: true,
+            _count: {
+              select: {
+                lessons: true,
+              },
+            },
+          },
+        },
+      },
     });
   }
 }

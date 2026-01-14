@@ -22,7 +22,14 @@ export class CoursesRepository {
     return await this.prisma.course.findUnique({
       where: { id, status: 'PUBLISHED' },
       include: {
-        lessons: true,
+        lessons: {
+          include: {
+            quizzes: true,
+          },
+          orderBy: {
+            order: 'asc',
+          },
+        },
       },
     });
   }
