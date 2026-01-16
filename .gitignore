@@ -60,3 +60,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # Ignore uploaded images
 uploads/images/*
 !uploads/images/.gitkeep
+
+uploads/assignments/*
+!uploads/assignments/.gitkeep
