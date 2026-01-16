@@ -191,6 +191,7 @@ model AssignmentSubmission {
   content      String? // text / markdown
   fileUrl      String?
   attempt      Int
+  score        Int?
   submittedAt  DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
